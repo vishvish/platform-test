@@ -1,0 +1,32 @@
+---
+- name: Send notification to slack
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+    - name: Send notification message via Slack all options
+      slack:
+        token: T78N41U7P/BAN7E91S7/GtMLNai6aG53XwpIaxMjoRSO
+        msg: '{{ inventory_hostname }} completed'
+        username: 'Ansible on {{ inventory_hostname }}'
+        link_names: 0
+        parse: 'none'
+      delegate_to: localhost
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
