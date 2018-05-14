@@ -3,7 +3,7 @@ pipeline {
         label "jenkins-jx-base"
     }
     environment {
-        ORG         = 'jenkinsxio'
+        ORG         = 'vishv'
         APP_NAME    = 'builder-ansible'
     }
     stages {
