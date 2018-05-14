@@ -1,10 +1,11 @@
 pipeline {
   agent {
-    label "jenkins-jx-base"
+    label "jenkins-python"
   }
   environment {
     ORG         = 'vishv'
-      APP_NAME    = 'builder-ansible'
+    APP_NAME    = 'builder-ansible'
+    CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
   }
   stages {
     stage('Build') {
@@ -14,7 +15,7 @@ pipeline {
         HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
       }
       steps {
-        container('nodejs') {
+        container('python') {
           sh "jx step validate --min-jx-version 1.2.36"
           sh "jx step post build --image \$JENKINS_X_DOCKER_REGISTRY_SERVICE_HOST:\$JENKINS_X_DOCKER_REGISTRY_SERVICE_PORT/$ORG/$APP_NAME:$PREVIEW_VERSION"
         }  
