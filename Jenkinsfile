@@ -4,7 +4,7 @@ pipeline {
   }
   environment {
     ORG         = 'vishv'
-    APP_NAME    = 'builder-ansible'
+    APP_NAME    = 'platform-test'
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
   }
   stages {
@@ -18,7 +18,16 @@ pipeline {
         container('jx-base') {
           sh "jx step validate --min-jx-version 1.2.36"
           sh "jx step post build --image \$JENKINS_X_DOCKER_REGISTRY_SERVICE_HOST:\$JENKINS_X_DOCKER_REGISTRY_SERVICE_PORT/$ORG/$APP_NAME:$PREVIEW_VERSION"
-        }  
+        }
+        dir ('./charts/platform-test') {
+          container('jx-base') {
+            sh 'jx step changelog --version v\$(cat ../../VERSION)'
+            // release the helm chart
+            sh 'make release'
+            // promote through all 'Auto' promotion Environments
+            sh 'jx promote -b --all-auto --timeout 1h --version \$(cat ../../VERSION)'
+          }
+        }
       }
     }
     /* stage('CI Build and push snapshot') { */
