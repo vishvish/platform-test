@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    label "jenkins-python"
+    label "jenkins-nodejs"
   }
   environment {
     ORG         = 'vishv'
