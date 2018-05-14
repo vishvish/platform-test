@@ -1,33 +1,46 @@
 pipeline {
-    agent {
-        label "jenkins-jx-base"
+  agent {
+    label "jenkins-jx-base"
+  }
+  environment {
+    ORG         = 'vishv'
+      APP_NAME    = 'builder-ansible'
+  }
+  stages {
+    stage('Build') {
+      environment {
+        PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
+        PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
+        HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
+      }
+      steps {
+        container('ansible') {
+          sh "jx step validate --min-jx-version 1.2.36"
+          sh "jx step post build --image \$JENKINS_X_DOCKER_REGISTRY_SERVICE_HOST:\$JENKINS_X_DOCKER_REGISTRY_SERVICE_PORT/$ORG/$APP_NAME:$PREVIEW_VERSION"
+        }  
+      }
     }
-    environment {
-        ORG         = 'vishv'
-        APP_NAME    = 'builder-ansible'
-    }
-    stages {
-        stage('CI Build and push snapshot') {
-            when {
-                branch 'PR-*'
-            }
-            steps {
-                container('jx-base') {
-                    sh "docker build -t docker.io/$ORG/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER ."
-                    sh "docker push docker.io/$ORG/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
-                }
-            }
-        }
-    
-        stage('Build and Push Release') {
-            when {
-                branch 'master'
-            }
-            steps {
-                container('jx-base') {
-                    sh "./jx/scripts/release.sh"
-                }
-            }
-        }
-    }
+    /* stage('CI Build and push snapshot') { */
+    /*     when { */
+    /*         branch 'PR-*' */
+    /*     } */
+    /*     steps { */
+    /*         container('jx-base') { */
+    /*             sh "docker build -t docker.io/$ORG/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER ." */
+    /*             sh "docker push docker.io/$ORG/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER" */
+    /*         } */
+    /*     } */
+    /* } */
+
+    /* stage('Build and Push Release') { */
+    /*     when { */
+    /*         branch 'master' */
+    /*     } */
+    /*     steps { */
+    /*         container('jx-base') { */
+    /*             sh "./jx/scripts/release.sh" */
+    /*         } */
+    /*     } */
+    /* } */
+  }
 }
